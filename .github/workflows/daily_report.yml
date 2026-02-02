@@ -1,7 +1,7 @@
 name: Daily Report Scan
 on:
   schedule:
-    - cron: '0 6 * * *' # Her sabah TR saatiyle 09:00 (UTC 06:00)
+    - cron: '0 3 * * *' # Her sabah TR saatiyle 06:00 (UTC 03:00)
   workflow_dispatch: # Telefondan elle çalıştırmak istersen buton çıkarır
 
 jobs:
