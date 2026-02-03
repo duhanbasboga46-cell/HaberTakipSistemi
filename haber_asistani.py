@@ -120,18 +120,18 @@ def create_pdf(analiz, kaynakca):
     
     try:
         # image_e822b6.png'deki çalışan yalın hali
-        pdf.add_font('DejaVu', '', font_path)
+        pdf.add_font('DejaVu', '', font_path, uni=True)
         pdf.set_font('DejaVu', size=12)
         
         # Başlık
-        pdf.cell(200, 10, text="Günlük Teknik & Stratejik Analiz", ln=True, align='C')
+        pdf.cell(200, 10, txt="Günlük Teknik & Stratejik Analiz", ln=True, align='C')
         pdf.ln(10)
     except Exception as e:
         print(f"⚠️ Font hatası (Standart fonta dönüldü): {e}")
         pdf.set_font("Helvetica", size=12)
 
     # 1. ANALİZ KISMI
-    pdf.multi_cell(0, 10, text=analiz)
+   pdf.multi_cell(0, 10, txt=analiz)
 
     # 2. KAYNAKÇA KISMI (Eğer varsa yeni sayfaya bas)
     if kaynakca:
@@ -140,7 +140,7 @@ def create_pdf(analiz, kaynakca):
         pdf.ln(5)
         # Kaynaklar için fontu biraz küçültüyoruz
         pdf.set_font('DejaVu', size=6)
-        pdf.multi_cell(0, 6, text=kaynakca)
+        pdf.multi_cell(0, 6, txt=kaynakca)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
@@ -220,3 +220,4 @@ if __name__ == "__main__":
 
 
     
+
