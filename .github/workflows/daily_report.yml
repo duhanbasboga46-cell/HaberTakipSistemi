@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: '3.9'
       - name: Install Dependencies
-        run: pip install google-generativeai fpdf feedparser
+        run: pip install google-generativeai fpdf2 feedparser
       - name: Run Script
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
