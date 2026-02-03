@@ -163,7 +163,9 @@ def send_email_with_pdf(content, pdf_path):
     try:
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
             # Buradaki Uygulama Şifrenizi aynı şekilde koruyun
-            server.login("duhanbasboga46@gmail.com", "kcjx nese lkyo xkja") 
+            # Artık şifre açıkta değil, sistemden (environment) çekiliyor
+            EMAIL_PASSWORD = os.getenv("EMAIL_PASS")
+            server.login("duhanbasboga46@gmail.com", EMAIL_PASSWORD) 
             server.send_message(msg)
         print("✅ PDF raporu başarıyla gönderildi!")
     except Exception as e:
@@ -220,4 +222,5 @@ if __name__ == "__main__":
 
 
     
+
 
