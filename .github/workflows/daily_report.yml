@@ -18,4 +18,4 @@ jobs:
       - name: Run Script
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_KEY }}
-        run: python main.py
+        run: python haber_asistani.py
