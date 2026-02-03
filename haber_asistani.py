@@ -4,7 +4,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from fpdf import FPDF # PDF oluşturmak için
+from fpdf import FPDF # fpdf2 yüklü olsa da bu şekilde çağrılır
 import time
 from datetime import datetime, timedelta
 import urllib.parse
@@ -111,6 +111,7 @@ STRICT CONSTRAINTS:
         return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}"
 
 def create_pdf(analiz, kaynakca):
+    # fpdf2 kullanımı
     pdf = FPDF()
     pdf.add_page()
     
@@ -118,27 +119,31 @@ def create_pdf(analiz, kaynakca):
     font_path = os.path.join(script_dir, "DejaVuSans.ttf")
     
     try:
-        # uni=True sildik (GitHub Actions uyumu için)
+        # uni=True sildik, fpdf2 bunu otomatik yönetir
         pdf.add_font('DejaVu', '', font_path)
         pdf.set_font('DejaVu', size=12)
-        pdf.cell(200, 10, text="Günlük Teknik & Stratejik Analiz", ln=True, align='C')
-        pdf.ln(10)
+        
+        # Başlık - fpdf2'de 'text' parametresi kullanılır
+        pdf.set_font('DejaVu', style='B', size=14)
+        pdf.cell(0, 10, text="Günlük Teknik & Stratejik Analiz", align='C')
+        pdf.ln(15)
     except Exception as e:
-        print(f"⚠️ Font hatası: {e}")
+        print(f"⚠️ Font yükleme hatası: {e}")
         pdf.set_font("Helvetica", size=12)
 
-    # BU KISIM ARTIK DOĞRU HİZALANDI (4 boşluk içeride)
-    # 1. ANALİZ KISMI
-    pdf.multi_cell(0, 10, txt=analiz)
+    # 1. ANALİZ KISMI (Doğru hizalama ile)
+    pdf.set_font('DejaVu', size=11)
+    # fpdf2'de multi_cell 'text' parametresini bekler
+    pdf.multi_cell(0, 10, text=analiz)
 
     # 2. KAYNAKÇA KISMI
     if kaynakca:
         pdf.add_page()
-        pdf.set_font('DejaVu', size=12)
-        pdf.cell(0, 10, text="Haber Kaynakları", ln=True)
-        pdf.ln(5)
-        pdf.set_font('DejaVu', size=6)
-        pdf.multi_cell(0, 6, txt=kaynakca)
+        pdf.set_font('DejaVu', style='B', size=12)
+        pdf.cell(0, 10, text="Haber Kaynakları")
+        pdf.ln(10)
+        pdf.set_font('DejaVu', size=8) 
+        pdf.multi_cell(0, 6, text=kaynakca)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
@@ -220,6 +225,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
