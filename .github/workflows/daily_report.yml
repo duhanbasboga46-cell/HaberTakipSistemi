@@ -17,5 +17,5 @@ jobs:
         run: pip install google-generativeai fpdf feedparser
       - name: Run Script
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_KEY }}
         run: python main.py
