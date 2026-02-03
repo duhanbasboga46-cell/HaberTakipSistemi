@@ -110,8 +110,10 @@ STRICT CONSTRAINTS:
     except Exception as e:
         return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}"
 
+from fpdf import FPDF
+
 def create_pdf(analiz, kaynakca):
-    # fpdf2 kullanımı
+    # fpdf2 kütüphanesini en sade haliyle başlatıyoruz
     pdf = FPDF()
     pdf.add_page()
     
@@ -119,31 +121,33 @@ def create_pdf(analiz, kaynakca):
     font_path = os.path.join(script_dir, "DejaVuSans.ttf")
     
     try:
-        # uni=True sildik, fpdf2 bunu otomatik yönetir
+        # SADECE NORMAL FONTU YÜKLÜYORUZ (Bold/Style='B' kesinlikle yasak)
         pdf.add_font('DejaVu', '', font_path)
         pdf.set_font('DejaVu', size=12)
         
-        # Başlık - fpdf2'de 'text' parametresi kullanılır
-        pdf.set_font('DejaVu', style='B', size=14)
-        pdf.cell(0, 10, text="Günlük Teknik & Stratejik Analiz", align='C')
+        # Başlık - Kalın yazı (style='B') kullanmıyoruz, sadece font boyutunu büyüterek vurguluyoruz
+        pdf.set_font('DejaVu', size=16)
+        pdf.cell(0, 10, text="Gunluk Teknik ve Stratejik Analiz", align='C')
         pdf.ln(15)
     except Exception as e:
-        print(f"⚠️ Font yükleme hatası: {e}")
+        print(f"⚠️ Font hatası: {e}")
         pdf.set_font("Helvetica", size=12)
 
-    # 1. ANALİZ KISMI (Doğru hizalama ile)
+    # 1. ANALİZ KISMI
     pdf.set_font('DejaVu', size=11)
-    # fpdf2'de multi_cell 'text' parametresini bekler
-    pdf.multi_cell(0, 10, text=analiz)
+    # Rapor metnindeki tüm garip karakterleri temizlemek için encode/decode yapıyoruz
+    safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
+    pdf.multi_cell(0, 10, text=safe_analiz)
 
     # 2. KAYNAKÇA KISMI
     if kaynakca:
         pdf.add_page()
-        pdf.set_font('DejaVu', style='B', size=12)
-        pdf.cell(0, 10, text="Haber Kaynakları")
+        pdf.set_font('DejaVu', size=14)
+        pdf.cell(0, 10, text="Haber Kaynaklari")
         pdf.ln(10)
         pdf.set_font('DejaVu', size=8) 
-        pdf.multi_cell(0, 6, text=kaynakca)
+        safe_kaynakca = kaynakca.encode('utf-8', 'ignore').decode('utf-8')
+        pdf.multi_cell(0, 6, text=safe_kaynakca)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
@@ -225,6 +229,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
