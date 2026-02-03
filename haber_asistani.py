@@ -114,38 +114,36 @@ def create_pdf(analiz, kaynakca):
     pdf = FPDF()
     pdf.add_page()
     
-    # Senin çalışan eski font yolun
     script_dir = os.path.dirname(os.path.abspath(__file__))
     font_path = os.path.join(script_dir, "DejaVuSans.ttf")
     
     try:
-        # image_e822b6.png'deki çalışan yalın hali
-        pdf.add_font('DejaVu', '', font_path, uni=True)
+        # uni=True sildik (GitHub Actions uyumu için)
+        pdf.add_font('DejaVu', '', font_path)
         pdf.set_font('DejaVu', size=12)
-        
-        # Başlık
-        pdf.cell(200, 10, txt="Günlük Teknik & Stratejik Analiz", ln=True, align='C')
+        pdf.cell(200, 10, text="Günlük Teknik & Stratejik Analiz", ln=True, align='C')
         pdf.ln(10)
     except Exception as e:
-        print(f"⚠️ Font hatası (Standart fonta dönüldü): {e}")
+        print(f"⚠️ Font hatası: {e}")
         pdf.set_font("Helvetica", size=12)
 
+    # BU KISIM ARTIK DOĞRU HİZALANDI (4 boşluk içeride)
     # 1. ANALİZ KISMI
-   pdf.multi_cell(0, 10, txt=analiz)
+    pdf.multi_cell(0, 10, txt=analiz)
 
-    # 2. KAYNAKÇA KISMI (Eğer varsa yeni sayfaya bas)
+    # 2. KAYNAKÇA KISMI
     if kaynakca:
         pdf.add_page()
+        pdf.set_font('DejaVu', size=12)
         pdf.cell(0, 10, text="Haber Kaynakları", ln=True)
         pdf.ln(5)
-        # Kaynaklar için fontu biraz küçültüyoruz
         pdf.set_font('DejaVu', size=6)
         pdf.multi_cell(0, 6, txt=kaynakca)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
     return pdf_output
-
+    
 def send_email_with_pdf(content, pdf_path):
     msg = MIMEMultipart()
     msg['Subject'] = f'Teknik Analiz Raporu - {datetime.now().strftime("%d/%m/%Y")}'
@@ -222,5 +220,6 @@ if __name__ == "__main__":
 
 
     
+
 
 
