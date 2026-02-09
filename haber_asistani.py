@@ -125,7 +125,6 @@ STRICT CONSTRAINTS:
 3. FORMAT: Use structured headings (e.g., Teknik Analiz, Saha Operasyon Etkileri ve öngörüleri, BIST Şirket Değerlendirmeleri, Yatırım Potansiyeli) and technical bullet points.
 4. LANGUAGE: The entire response must be written in TURKISH.
 5. TONE: Professional, concise, and highly engineering-focused.
-6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
 """
 
     try:
@@ -254,6 +253,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
