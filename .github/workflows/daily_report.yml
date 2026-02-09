@@ -16,7 +16,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip uninstall fpdf -y
-          pip install google-generativeai fpdf2 feedparser
+          pip install google-generativeai fpdf2 feedparser newspaper3k lxml_html_clean
       - name: Run Script
         env:
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
