@@ -8,6 +8,7 @@ from fpdf import FPDF # fpdf2 yüklü olsa da bu şekilde çağrılır
 import time
 from datetime import datetime, timedelta
 import urllib.parse
+from newspaper import Article
 
 import os # Sisteme erişim için gerekli
 
@@ -47,6 +48,15 @@ for kw in keywords:
     rss_link = f"https://news.google.com/rss/search?q={safe_kw}+when:24h&hl=tr&gl=TR&ceid=TR:tr"
     RSS_URLS.append(rss_link)
 
+def get_full_text(url):
+    try:
+        article = Article(url)
+        article.download()
+        article.parse()
+        return article.text[:5000] # Çok uzun haberlerde sınırı aşmamak için ilk 5000 karakter
+    except:
+        return ""
+        
 def get_news_summary():
     found_news = False
     all_entries_text = "" 
@@ -62,9 +72,23 @@ def get_news_summary():
             published_time = entry.get('published_parsed')
             if published_time and time.mktime(published_time) > twenty_four_hours_ago:
                 entry_count += 1
-                # Link bilgisini alt satıra geçecek şekilde metne ekliyoruz
-                all_entries_text += f"\n--- HABER {entry_count} ---\nBAŞLIK: {entry.title}\nDETAY: {entry.description}\nKAYNAK: {entry.link}\n"
                 found_news = True
+                
+                # --- AI FİLTRESİ BAŞLANGICI ---
+                search_text = (entry.title + " " + entry.description).lower()
+                ai_keywords = ["yapay zeka", "ai", "llm", "robotik", "otonom", "machine learning"]
+                
+                # Eğer haber yapay zeka ile ilgiliyse tam metni çek
+                if any(kw in search_text for kw in ai_keywords):
+                    full_text = get_full_text(entry.link)
+                    content = full_text if full_text else entry.description
+                    type_label = "[FULL TEXT ANALYSIS]"
+                else:
+                    content = entry.description
+                    type_label = "[SUMMARY]"
+                
+                all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
+                # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
         return "Son 24 saat içinde yeni haber bulunamadı."
@@ -101,6 +125,7 @@ STRICT CONSTRAINTS:
 3. FORMAT: Use structured headings (e.g., Teknik Analiz, Saha Operasyon Etkileri ve öngörüleri, BIST Şirket Değerlendirmeleri, Yatırım Potansiyeli) and technical bullet points.
 4. LANGUAGE: The entire response must be written in TURKISH.
 5. TONE: Professional, concise, and highly engineering-focused.
+6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
 """
 
     try:
@@ -229,6 +254,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
