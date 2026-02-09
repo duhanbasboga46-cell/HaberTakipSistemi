@@ -121,10 +121,11 @@ STRUCTURE:
 
 STRICT CONSTRAINTS:
 1. ANALYSIS DEPTH: Provide expert-level technical insights regarding field operations, assembly precision, system architecture, and project-specific requirements (Robotics/Defense context).
-2. CHARACTER LIMIT: The total response must NOT exceed 15,000 characters (including spaces). This is a hard limit.
+2. CHARACTER LIMIT: The total response must NOT exceed 20,000 characters (including spaces). This is a hard limit.
 3. FORMAT: Use structured headings (e.g., Teknik Analiz, Saha Operasyon Etkileri ve öngörüleri, BIST Şirket Değerlendirmeleri, Yatırım Potansiyeli) and technical bullet points.
 4. LANGUAGE: The entire response must be written in TURKISH.
 5. TONE: Professional, concise, and highly engineering-focused.
+6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
 """
 
     try:
@@ -253,6 +254,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
