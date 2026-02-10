@@ -138,7 +138,6 @@ STRICT CONSTRAINTS:
 from fpdf import FPDF
 
 def create_pdf(analiz, kaynakca):
-    # fpdf2 kütüphanesini en sade haliyle başlatıyoruz
     pdf = FPDF()
     pdf.add_page()
     
@@ -146,33 +145,37 @@ def create_pdf(analiz, kaynakca):
     font_path = os.path.join(script_dir, "DejaVuSans.ttf")
     
     try:
-        # SADECE NORMAL FONTU YÜKLÜYORUZ (Bold/Style='B' kesinlikle yasak)
         pdf.add_font('DejaVu', '', font_path)
-        pdf.set_font('DejaVu', size=12)
         
-        # Başlık - Kalın yazı (style='B') kullanmıyoruz, sadece font boyutunu büyüterek vurguluyoruz
+        # --- 1. ANA BAŞLIK: SİYAH (Standart) ---
         pdf.set_font('DejaVu', size=16)
-        pdf.cell(0, 10, text="Gunluk Teknik ve Stratejik Analiz", align='C')
+        pdf.set_text_color(0, 0, 0) # Siyah renk
+        pdf.cell(0, 10, text="Günlük Teknik ve Stratejik Analiz", align='C')
         pdf.ln(15)
+        
+        # ANALİZ METNİ
+        pdf.set_font('DejaVu', size=11)
+        safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
+        pdf.multi_cell(0, 10, text=safe_analiz)
+
+        # --- 2. KAYNAKÇA BAŞLIĞI: YEŞİL ---
+        if kaynakca:
+            pdf.add_page()
+            pdf.set_font('DejaVu', size=14)
+            pdf.set_text_color(34, 139, 34) # SADECE BURASI YEŞİL (Forest Green)
+            pdf.cell(0, 10, text="Haber Kaynakları")
+            pdf.ln(10)
+            
+            # LİNKLER İÇİN SİYAHA GERİ DÖNÜŞ
+            pdf.set_text_color(0, 0, 0) # Linkleri tekrar siyah yapıyoruz
+            pdf.set_font('DejaVu', size=8) 
+            safe_kaynakca = kaynakca.encode('utf-8', 'ignore').decode('utf-8')
+            pdf.multi_cell(0, 6, text=safe_kaynakca)
+
     except Exception as e:
-        print(f"⚠️ Font hatası: {e}")
+        print(f"⚠️ PDF Oluşturma Hatası: {e}")
         pdf.set_font("Helvetica", size=12)
-
-    # 1. ANALİZ KISMI
-    pdf.set_font('DejaVu', size=11)
-    # Rapor metnindeki tüm garip karakterleri temizlemek için encode/decode yapıyoruz
-    safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
-    pdf.multi_cell(0, 10, text=safe_analiz)
-
-    # 2. KAYNAKÇA KISMI
-    if kaynakca:
-        pdf.add_page()
-        pdf.set_font('DejaVu', size=14)
-        pdf.cell(0, 10, text="Haber Kaynaklari")
-        pdf.ln(10)
-        pdf.set_font('DejaVu', size=8) 
-        safe_kaynakca = kaynakca.encode('utf-8', 'ignore').decode('utf-8')
-        pdf.multi_cell(0, 6, text=safe_kaynakca)
+        pdf.set_text_color(0, 0, 0)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
@@ -258,6 +261,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
