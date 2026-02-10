@@ -87,7 +87,7 @@ def get_news_summary():
                     type_label = "[SUMMARY]"
                 
                 all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
-                sources_list.append(f"Haber {entry_count}: {entry.link}")
+                sources_list.append(f"Haber {entry_count}: {entry.title} -\n{entry.link}")
                 # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
@@ -258,6 +258,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
