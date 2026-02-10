@@ -60,6 +60,7 @@ def get_full_text(url):
 def get_news_summary():
     found_news = False
     all_entries_text = "" 
+    sources_list = []
     
     now = time.time()
     # 1. 24 Saat Filtresi (Tam 1 gün geriye dönük)
@@ -88,6 +89,7 @@ def get_news_summary():
                     type_label = "[SUMMARY]"
                 
                 all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
+                sources_list.append(f"Haber {entry_count}: {entry.link}")
                 # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
@@ -131,7 +133,7 @@ STRICT CONSTRAINTS:
     try:
         # Tek seferde tüm haberlerin analizini alıyoruz
         response = model.generate_content(final_prompt)
-        return response.text
+        return response.text, "\n".join(sources_list)
     except Exception as e:
         return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}"
 
@@ -212,29 +214,33 @@ if __name__ == "__main__":
         try:
             # f harfini unutma: f"..." değişkenleri okumasını sağlar
             print(f"🔄 Deneme {attempt}: Analiz hazırlanıyor...")
-            report = get_news_summary()
+            report_text, original_sources = get_news_summary() # Değişiklik 4 buradaydı
 
-            if not report or (len(report) < 200 and "hata" in report.lower()):
-                 raise Exception("AI geçerli bir içerik döndüremedi.")
-            
-            if "yeni haber bulunamadı" in report:
-                print("📭 " + report)
-                success = True 
+            # 219. satır civarı: report -> report_text oldu
+            if not report_text or (len(report_text) < 200 and "hata" in report_text.lower()):
+                raise Exception("AI geçerli bir içerik döndüremedi.")
+
+            # 222. satır civarı: report -> report_text oldu
+            if "yeni haber bulunamadı" in report_text:
+                print("🗞️ " + report_text)
+                success = True
             else:
                 # --- PARÇALAMA BURADA OLMALI ---
-                if "[KAYNAKCA_BOLUMU]" in report:
-                    parts = report.split("[KAYNAKCA_BOLUMU]")
+                if "[KAYNAKCA_BOLUMU]" in report_text:
+                    parts = report_text.split("[KAYNAKCA_BOLUMU]")
                     analiz_metni = parts[0].strip()
-                    kaynakca_metni = parts[1].strip()
+                    # Gemini'nin uydurduğu linkler yerine bizim topladığımız orijinal linkleri koyuyoruz
+                    kaynakca_metni = original_sources 
                 else:
-                    analiz_metni = report
-                    kaynakca_metni = ""
+                    analiz_metni = report_text
+                    kaynakca_metni = original_sources
 
                 # Fonksiyonu iki veriyle çağırıyoruz
                 pdf_dosyasi = create_pdf(analiz_metni, kaynakca_metni)
-                
-                send_email_with_pdf(report, pdf_dosyasi)
-                
+
+                # Mail gövdesine analiz metnini, ek olarak PDF'i gönderiyoruz
+                send_email_with_pdf(analiz_metni, pdf_dosyasi)
+
                 print(f"✅ İşlem {attempt}. denemede başarıyla tamamlandı!")
                 success = True
 
@@ -254,6 +260,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
