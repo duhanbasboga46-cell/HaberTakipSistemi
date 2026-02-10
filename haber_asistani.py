@@ -87,8 +87,8 @@ def get_news_summary():
                     type_label = "[SUMMARY]"
                 
                 all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
-                # Başlığı ve Linki iki ayrı parça olarak paketliyoruz
-                sources_list.append( (f"Haber {entry_count}: {entry.title}", entry.link) )
+                # Başlığı ve linki birbirinden ayırarak bir paket (tuple) yapıyoruz
+                sources_list.append((f"Haber {entry_count}: {entry.title}", entry.link))
                 # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
@@ -115,11 +115,6 @@ Analyze and highlight any developments, financial shifts, or strategic moves rel
 - FORD OTOSAN / FROTO (Automotive & Automation)
 - TURKISH AIRLINES / THYAO (AVIATION)
 
-STRUCTURE:
-1. ANALYSIS SECTION: Detailed technical and financial analysis. 
-2. SEPARATOR: You MUST use the exact tag [KAYNAKCA_BOLUMU] after the analysis.
-3. SOURCES SECTION: List all source links after the tag.
-
 STRICT CONSTRAINTS:
 1. ANALYSIS DEPTH: Provide expert-level technical insights regarding field operations, assembly precision, system architecture, and project-specific requirements (Robotics/Defense context).
 2. CHARACTER LIMIT: The total response must NOT exceed 20,000 characters (including spaces). This is a hard limit.
@@ -130,11 +125,13 @@ STRICT CONSTRAINTS:
 """
 
     try:
-        # Tek seferde tüm haberlerin analizini alıyoruz
-        response = model.generate_content(final_prompt)
-        return response.text, sources_list # Listeyi olduğu gibi döndür
-    except Exception as e:
-        return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}"
+            response = model.generate_content(final_prompt)
+            # BURASI ÇOK ÖNEMLİ: sources_list ham liste olarak dönmeli
+            return response.text, sources_list 
+        except Exception as e:
+            print(f"❌ AI Hatası: {e}")
+            # Hata durumunda boş liste döndürerek sistemin devam etmesini sağlıyoruz
+            return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}", []
 
 from fpdf import FPDF
 
@@ -160,30 +157,30 @@ def create_pdf(analiz, kaynakca_listesi):
         pdf.multi_cell(0, 10, text=safe_analiz)
 
         # --- 2. KAYNAKÇA BÖLÜMÜ ---
-        if kaynakca_listesi:
+        if kaynakca_listesi and isinstance(kaynakca_listesi, list):
             pdf.add_page()
-            # Bölüm Başlığı (Siyah kalsın demiştin, istersen yeşil yapabiliriz)
             pdf.set_font('DejaVu', size=14)
-            pdf.set_text_color(0, 0, 0) 
-            pdf.cell(0, 10, text="Haber Kaynakları")
-            pdf.ln(10)
+            pdf.set_text_color(34, 139, 34) # Başlık Yeşil
+            pdf.cell(0, 10, text="Haber Kaynakları", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(5)
             
-            # --- DÖNGÜ BAŞLIYOR: HER HABER İÇİN RENK AYARI ---
-            for baslik, link in kaynakca_listesi:
-                # A) BAŞLIK KISMI: YEŞİL
-                pdf.set_text_color(34, 139, 34) # Forest Green
-                pdf.set_font('DejaVu', size=10) # Başlık bir tık büyük
-                # Türkçe karakter temizliği
-                safe_baslik = baslik.encode('utf-8', 'ignore').decode('utf-8')
-                pdf.multi_cell(0, 6, text=safe_baslik)
+            for item in kaynakca_listesi:
+                # 'item' bir demet (tuple) olmalı: (başlık, link)
+                if isinstance(item, tuple) and len(item) == 2:
+                    baslik, link = item
+                    
+                    # BAŞLIK KISMI -> YEŞİL
+                    pdf.set_font('DejaVu', size=10)
+                    pdf.set_text_color(34, 139, 34)
+                    safe_baslik = baslik.encode('utf-8', 'ignore').decode('utf-8')
+                    pdf.multi_cell(0, 6, text=safe_baslik)
 
-                # B) LİNK KISMI: SİYAH
-                pdf.set_text_color(0, 0, 0) # Siyaha dönüş
-                pdf.set_font('DejaVu', size=8) # Link küçük font
-                pdf.multi_cell(0, 6, text=link)
-                
-                # Her haber arasında biraz boşluk
-                pdf.ln(5)
+                    # LİNK KISMI -> SİYAH
+                    pdf.set_font('DejaVu', size=8)
+                    pdf.set_text_color(0, 0, 0)
+                    pdf.multi_cell(0, 6, text=link)
+                    
+                    pdf.ln(4)
 
     except Exception as e:
         print(f"⚠️ PDF Oluşturma Hatası: {e}")
@@ -270,6 +267,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
