@@ -87,8 +87,7 @@ def get_news_summary():
                     type_label = "[SUMMARY]"
                 
                 all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
-                # Başlığı ve linki birbirinden ayırarak bir paket (tuple) yapıyoruz
-                sources_list.append((f"Haber {entry_count}: {entry.title}", str(entry.link)))
+                sources_list.append(f"Haber {entry_count}: {entry.title} -\n{entry.link}")
                 # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
@@ -115,6 +114,12 @@ Analyze and highlight any developments, financial shifts, or strategic moves rel
 - FORD OTOSAN / FROTO (Automotive & Automation)
 - TURKISH AIRLINES / THYAO (AVIATION)
 
+STRUCTURE:
+1. ANALYSIS SECTION: Detailed technical and financial analysis. 
+2. SEPARATOR: You MUST use the exact tag [KAYNAKCA_BOLUMU] after the analysis.
+3. SOURCES SECTION: List all source links after the tag.
+4. {entry.title} should be green font.
+
 STRICT CONSTRAINTS:
 1. ANALYSIS DEPTH: Provide expert-level technical insights regarding field operations, assembly precision, system architecture, and project-specific requirements (Robotics/Defense context).
 2. CHARACTER LIMIT: The total response must NOT exceed 20,000 characters (including spaces). This is a hard limit.
@@ -124,18 +129,17 @@ STRICT CONSTRAINTS:
 6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
 """
 
-    # Satır 135 civarı: return kısmını böyle yap
     try:
+        # Tek seferde tüm haberlerin analizini alıyoruz
         response = model.generate_content(final_prompt)
-        # Tuple paketini temiz ve str zorlamasıyla döndür
-        return response.text, sources_list 
+        return response.text, "\n".join(sources_list)
     except Exception as e:
-        print(f"❌ AI Hatası: {e}")
-        return f"Hata: {str(e)}", []
-            
+        return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}"
+
 from fpdf import FPDF
 
-def create_pdf(analiz, kaynakca_listesi):
+def create_pdf(analiz, kaynakca):
+    # fpdf2 kütüphanesini en sade haliyle başlatıyoruz
     pdf = FPDF()
     pdf.add_page()
     
@@ -143,55 +147,33 @@ def create_pdf(analiz, kaynakca_listesi):
     font_path = os.path.join(script_dir, "DejaVuSans.ttf")
     
     try:
+        # SADECE NORMAL FONTU YÜKLÜYORUZ (Bold/Style='B' kesinlikle yasak)
         pdf.add_font('DejaVu', '', font_path)
+        pdf.set_font('DejaVu', size=12)
         
-        # --- 1. ANA BAŞLIK: SİYAH ---
+        # Başlık - Kalın yazı (style='B') kullanmıyoruz, sadece font boyutunu büyüterek vurguluyoruz
         pdf.set_font('DejaVu', size=16)
-        pdf.set_text_color(0, 0, 0)
-        pdf.cell(0, 10, text="Günlük Teknik ve Stratejik Analiz", align='C')
+        pdf.cell(0, 10, text="Gunluk Teknik ve Stratejik Analiz", align='C')
         pdf.ln(15)
-        
-        # ANALİZ METNİ
-        pdf.set_font('DejaVu', size=11)
-        safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
-        pdf.multi_cell(0, 10, text=safe_analiz)
-
-        # --- 2. RENKLİ KAYNAKÇA BÖLÜMÜ ---
-        if kaynakca_listesi and isinstance(kaynakca_listesi, list):
-            pdf.add_page()
-            pdf.set_font('DejaVu', size=14)
-            pdf.set_text_color(34, 139, 34) # Başlık Yeşil
-            pdf.cell(0, 10, text="Haber Kaynakları", new_x="LMARGIN", new_y="NEXT")
-            pdf.ln(5)
-            
-            for item in kaynakca_listesi:
-                try:
-                    # Unpack işlemi
-                    if isinstance(item, tuple) and len(item) == 2:
-                        baslik, link = item
-                        
-                        # 1. BAŞLIK (YEŞİL)
-                        pdf.set_font('DejaVu', size=10)
-                        pdf.set_text_color(34, 139, 34)
-                        safe_baslik = str(baslik).encode('utf-8', 'ignore').decode('utf-8')
-                        pdf.multi_cell(0, 6, text=safe_baslik + " -") 
-
-                        # 2. LİNK (SİYAH)
-                        pdf.set_font('DejaVu', size=8)
-                        pdf.set_text_color(0, 0, 0)
-                        # LİNKİ "ZIRHLI" HALE GETİRİYORUZ (Asıl kopukluk buradaydı)
-                        safe_link = str(link).encode('utf-8', 'ignore').decode('utf-8').strip()
-                        pdf.multi_cell(0, 6, text=safe_link)
-                        
-                        pdf.ln(4)
-                except:
-                    # Eğer bir haberde hata olursa, onu atla ve diğerine geç
-                    continue
-
     except Exception as e:
-        print(f"⚠️ PDF Oluşturma Hatası: {e}")
+        print(f"⚠️ Font hatası: {e}")
         pdf.set_font("Helvetica", size=12)
-        pdf.set_text_color(0, 0, 0) # Hata durumunda rengi sıfırla
+
+    # 1. ANALİZ KISMI
+    pdf.set_font('DejaVu', size=11)
+    # Rapor metnindeki tüm garip karakterleri temizlemek için encode/decode yapıyoruz
+    safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
+    pdf.multi_cell(0, 10, text=safe_analiz)
+
+    # 2. KAYNAKÇA KISMI
+    if kaynakca:
+        pdf.add_page()
+        pdf.set_font('DejaVu', size=14)
+        pdf.cell(0, 10, text="Haber Kaynaklari")
+        pdf.ln(10)
+        pdf.set_font('DejaVu', size=8) 
+        safe_kaynakca = kaynakca.encode('utf-8', 'ignore').decode('utf-8')
+        pdf.multi_cell(0, 6, text=safe_kaynakca)
 
     pdf_output = "Gunluk_Analiz.pdf"
     pdf.output(pdf_output)
@@ -242,14 +224,18 @@ if __name__ == "__main__":
                 print("🗞️ " + report_text)
                 success = True
             else:
-                # ARTIK PARÇALAMA YOK.
-                # Analiz metni direkt Gemini'den gelen metindir.
-                analiz_metni = report_text
-                # Kaynakça listesi de bizim topladığımız listedir.
-                kaynakca_listesi = original_sources
+                # --- PARÇALAMA BURADA OLMALI ---
+                if "[KAYNAKCA_BOLUMU]" in report_text:
+                    parts = report_text.split("[KAYNAKCA_BOLUMU]")
+                    analiz_metni = parts[0].strip()
+                    # Gemini'nin uydurduğu linkler yerine bizim topladığımız orijinal linkleri koyuyoruz
+                    kaynakca_metni = original_sources 
+                else:
+                    analiz_metni = report_text
+                    kaynakca_metni = original_sources
 
-                # Fonksiyonu çağırıyoruz
-                pdf_dosyasi = create_pdf(analiz_metni, kaynakca_listesi)
+                # Fonksiyonu iki veriyle çağırıyoruz
+                pdf_dosyasi = create_pdf(analiz_metni, kaynakca_metni)
 
                 # Mail gövdesine analiz metnini, ek olarak PDF'i gönderiyoruz
                 send_email_with_pdf(analiz_metni, pdf_dosyasi)
@@ -273,13 +259,6 @@ if __name__ == "__main__":
 
 
     
-
-
-
-
-
-
-
 
 
 
