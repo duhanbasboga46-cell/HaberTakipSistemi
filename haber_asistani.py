@@ -125,13 +125,13 @@ STRICT CONSTRAINTS:
 """
 
     try:
-            response = model.generate_content(final_prompt)
-            # BURASI ÇOK ÖNEMLİ: sources_list ham liste olarak dönmeli
-            return response.text, sources_list 
-        except Exception as e:
-            print(f"❌ AI Hatası: {e}")
-            # Hata durumunda boş liste döndürerek sistemin devam etmesini sağlıyoruz
-            return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}", []
+        response = model.generate_content(final_prompt)
+        # Listeyi olduğu gibi döndürüyoruz (Unpack hatasını önlemek için)
+        return response.text, sources_list 
+    except Exception as e:
+        print(f"❌ AI Hatası: {e}")
+        # Hata durumunda boş liste döndürerek sistemin çökmesini engelliyoruz
+        return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}", []
 
 from fpdf import FPDF
 
@@ -267,6 +267,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
