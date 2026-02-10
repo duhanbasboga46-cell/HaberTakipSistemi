@@ -124,15 +124,15 @@ STRICT CONSTRAINTS:
 6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
 """
 
+    # Satır 135 civarı: return kısmını böyle yap
     try:
         response = model.generate_content(final_prompt)
-        # Listeyi olduğu gibi döndürüyoruz (Unpack hatasını önlemek için)
+        # Tuple paketini temiz ve str zorlamasıyla döndür
         return response.text, sources_list 
     except Exception as e:
         print(f"❌ AI Hatası: {e}")
-        # Hata durumunda boş liste döndürerek sistemin çökmesini engelliyoruz
-        return f"Analiz raporu oluşturulurken bir hata oluştu: {str(e)}", []
-
+        return f"Hata: {str(e)}", []
+            
 from fpdf import FPDF
 
 def create_pdf(analiz, kaynakca_listesi):
@@ -165,24 +165,28 @@ def create_pdf(analiz, kaynakca_listesi):
             pdf.ln(5)
             
             for item in kaynakca_listesi:
-                if isinstance(item, tuple) and len(item) == 2:
-                    baslik, link = item
-                    
-                    # A) BAŞLIK KISMI -> YEŞİL
-                    pdf.set_font('DejaVu', size=10)
-                    pdf.set_text_color(34, 139, 34)
-                    # Karakter temizliği (Hayati önemde!)
-                    safe_baslik = str(baslik).encode('utf-8', 'ignore').decode('utf-8')
-                    pdf.multi_cell(0, 6, text=safe_baslik + " -") 
+                try:
+                    # Unpack işlemi
+                    if isinstance(item, tuple) and len(item) == 2:
+                        baslik, link = item
+                        
+                        # 1. BAŞLIK (YEŞİL)
+                        pdf.set_font('DejaVu', size=10)
+                        pdf.set_text_color(34, 139, 34)
+                        safe_baslik = str(baslik).encode('utf-8', 'ignore').decode('utf-8')
+                        pdf.multi_cell(0, 6, text=safe_baslik + " -") 
 
-                    # B) LİNK KISMI -> SİYAH
-                    pdf.set_font('DejaVu', size=8)
-                    pdf.set_text_color(0, 0, 0) # Siyaha dönüş
-                    # LİNK İÇİN DE GÜVENLİ ENCODE (Kopukluğu bu satır tamir eder!)
-                    safe_link = str(link).encode('utf-8', 'ignore').decode('utf-8')
-                    pdf.multi_cell(0, 6, text=safe_link)
-                    
-                    pdf.ln(4)
+                        # 2. LİNK (SİYAH)
+                        pdf.set_font('DejaVu', size=8)
+                        pdf.set_text_color(0, 0, 0)
+                        # LİNKİ "ZIRHLI" HALE GETİRİYORUZ (Asıl kopukluk buradaydı)
+                        safe_link = str(link).encode('utf-8', 'ignore').decode('utf-8').strip()
+                        pdf.multi_cell(0, 6, text=safe_link)
+                        
+                        pdf.ln(4)
+                except:
+                    # Eğer bir haberde hata olursa, onu atla ve diğerine geç
+                    continue
 
     except Exception as e:
         print(f"⚠️ PDF Oluşturma Hatası: {e}")
@@ -269,6 +273,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
