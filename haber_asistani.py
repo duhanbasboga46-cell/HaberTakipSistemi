@@ -118,7 +118,6 @@ STRUCTURE:
 1. ANALYSIS SECTION: Detailed technical and financial analysis. 
 2. SEPARATOR: You MUST use the exact tag [KAYNAKCA_BOLUMU] after the analysis.
 3. SOURCES SECTION: List all source links after the tag.
-4. {entry.title} should be green font.
 
 STRICT CONSTRAINTS:
 1. ANALYSIS DEPTH: Provide expert-level technical insights regarding field operations, assembly precision, system architecture, and project-specific requirements (Robotics/Defense context).
@@ -259,6 +258,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
