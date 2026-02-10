@@ -88,7 +88,7 @@ def get_news_summary():
                 
                 all_entries_text += f"\n--- HABER {entry_count} {type_label} ---\nBAŞLIK: {entry.title}\nİÇERİK: {content}\nKAYNAK: {entry.link}\n"
                 # Başlığı ve linki birbirinden ayırarak bir paket (tuple) yapıyoruz
-                sources_list.append((f"Haber {entry_count}: {entry.title}", entry.link))
+                sources_list.append((f"Haber {entry_count}: {entry.title}", str(entry.link)))
                 # --- AI FİLTRESİ BİTİŞİ ---
 
     if not found_news:
@@ -156,7 +156,7 @@ def create_pdf(analiz, kaynakca_listesi):
         safe_analiz = analiz.encode('utf-8', 'ignore').decode('utf-8')
         pdf.multi_cell(0, 10, text=safe_analiz)
 
-        # --- 2. KAYNAKÇA BÖLÜMÜ ---
+        # --- 2. RENKLİ KAYNAKÇA BÖLÜMÜ ---
         if kaynakca_listesi and isinstance(kaynakca_listesi, list):
             pdf.add_page()
             pdf.set_font('DejaVu', size=14)
@@ -165,20 +165,22 @@ def create_pdf(analiz, kaynakca_listesi):
             pdf.ln(5)
             
             for item in kaynakca_listesi:
-                # 'item' bir demet (tuple) olmalı: (başlık, link)
                 if isinstance(item, tuple) and len(item) == 2:
                     baslik, link = item
                     
-                    # BAŞLIK KISMI -> YEŞİL
+                    # A) BAŞLIK KISMI -> YEŞİL
                     pdf.set_font('DejaVu', size=10)
                     pdf.set_text_color(34, 139, 34)
-                    safe_baslik = baslik.encode('utf-8', 'ignore').decode('utf-8')
-                    pdf.multi_cell(0, 6, text=safe_baslik)
+                    # Karakter temizliği (Hayati önemde!)
+                    safe_baslik = str(baslik).encode('utf-8', 'ignore').decode('utf-8')
+                    pdf.multi_cell(0, 6, text=safe_baslik + " -") 
 
-                    # LİNK KISMI -> SİYAH
+                    # B) LİNK KISMI -> SİYAH
                     pdf.set_font('DejaVu', size=8)
-                    pdf.set_text_color(0, 0, 0)
-                    pdf.multi_cell(0, 6, text=link)
+                    pdf.set_text_color(0, 0, 0) # Siyaha dönüş
+                    # LİNK İÇİN DE GÜVENLİ ENCODE (Kopukluğu bu satır tamir eder!)
+                    safe_link = str(link).encode('utf-8', 'ignore').decode('utf-8')
+                    pdf.multi_cell(0, 6, text=safe_link)
                     
                     pdf.ln(4)
 
@@ -267,6 +269,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
