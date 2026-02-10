@@ -26,15 +26,13 @@ model = genai.GenerativeModel('gemini-3-flash-preview')
 
 # Takip etmek istediğin kelimeleri buraya ekle
 keywords = [
-    'site:linkedin.com "ASELSAN"',
-    'site:linkedin.com "FORD OTOSAN"',
-    'site:linkedin.com "TÜPRAŞ"',
-    'site:linkedin.com "VESTEL BEYAZ"',
-    'site:linkedin.com "İSKENDERUN DEMİR ÇELİK"',
-    'site:linkedin.com "Robotik"',
-    'site:linkedin.com "Savunma Sanayii"',
-    'site:linkedin.com "Montaj Mühendisliği"',
-    'site:linkedin.com "Çip Yatırımı"'
+    "ASELSAN",
+    "FORD OTOSAN",
+    "TÜPRAŞ",
+    "Robotik Haberleri",
+    "Savunma Sanayii Gelişmeleri",
+    "Çip Yatırımı"
+    "Yapay Zeka"
 ]
 RSS_URLS = [
     "https://webrazzi.com/feed/",
@@ -260,6 +258,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
