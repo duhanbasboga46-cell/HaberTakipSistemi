@@ -95,37 +95,48 @@ def get_news_summary():
 
     # Detaylı ve profesyonel İngilizce Prompt (Aynen korunmuştur)
     final_prompt = f"""
-Act as a high-level technical analyst and advisor for an 'Assembly Engineer' and 'Field Operation Architect' (Calculated Field Leader). 
-The user is a mechanical engineer specialized in robotics, the defense industry, and project-based system integration, with expertise in on-site implementation and technical project management, who is also a strategic investor in the Turkish Stock Market (BIST).
-They also have a strategic interest in chip investments and high-tech hardware.
+Act as a high-level technical analyst and advisor for an 'Assembly Engineer', 'Field Operation Architect' and 'Technology Consultant'. 
+The user is a mechanical engineer specialized in robotics, the defense industry, and project-based system integration, with expertise in on-site implementation and technical project management,
+who is also a strategic investor in the Turkish Stock Market (BIST).
+They also have a strategic interest in artificial intelligence investments and high-tech hardware.
 
 Your task is to analyze the following {entry_count} news items and provide a comprehensive, high-value report in TURKISH.
 
 NEWS DATA:
 {all_entries_text}
 
-SPECIFIC MONITORING - BIST COMPANIES:
-Analyze and highlight any developments, financial shifts, or strategic moves related to:
-- ASELSAN / ASELS (Defense & Electronics)
-- TÜPRAŞ / TUPRS (Energy & Refinery)
-- ASTOR ENERJİ / ASTOR (Energy)
-- VESTEL BEYAZ EŞYA / VESBE (Manufacturing & Consumer Electronics)
-- İSKENDERUN DEMİR ÇELİK / ISDMR (Heavy Industry & Steel)
-- FORD OTOSAN / FROTO (Automotive & Automation)
-- TURKISH AIRLINES / THYAO (AVIATION)
+### THINKING PROCESS (CHAIN OF THOUGHT)
+Before generating the report, perform the following steps internally:
+1.  **Filter:** Discard generic news. Focus only on items containing technical details, strategic partnerships, or financial shifts affecting the specific BIST companies or the high-tech sector or artificial sector.
+2.  **Connect:** Map technical developments (e.g., a new chip shortage, a robotics patent, artificial intelligence on chip, transportation, industrial machine, home, city) directly to field operations and stock performance.
+Ask: "How does this change the assembly line or the balance sheet?"
+3.  **Analyze:** For full-text articles, apply a rigid SWOT analysis specifically tailored to *automation efficiency* and *stock value*.
+4.  **Synthesize:** Translate findings into professional, engineering-focused TURKISH.
+
+### OUTPUT FORMAT & SECTIONS
+The final output must be in **TURKISH** and follow this strict structure:
+
+**1. YÖNETİCİ ÖZETİ (EXECUTIVE SUMMARY)**
+   - Provide a high-level synthesis of the most critical 2-3 developments. Connect the dots between technology and market impact.
+
+**2. TEKNİK VE FİNANSAL DERİNLİK ANALİZİ (DETAILED ANALYSIS)**
+   - Analyze key news items. Use engineering terminology (e.g., tolerances, throughput, system architecture) where appropriate.
+   - **Critical Focus:** ASELS, TUPRS, ASTOR, VESBE, ISDMR, FROTO, THYAO.
+
+**3. SWOT ANALİZİ (FOR [FULL TEXT] ITEMS ONLY)**
+   - Present this as a **Markdown Table**.
+   - Columns: GÜÇLÜ YÖNLER (Internal tech capability), ZAYIF YÖNLER (Operational bottlenecks), FIRSATLAR (Market/Tech expansion), TEHDİTLER (Supply chain/Competitors).
+
+**4. SAHA OPERASYON ETKİLERİ VE YATIRIM ÖNGÖRÜLERİ**
+   - Translate the news into on-site reality: Does this mean delays? New machinery requirements?
+   - Strategic investment outlook for the user's portfolio.
 
 STRUCTURE:
-1. ANALYSIS SECTION: Detailed technical and financial analysis. 
-2. SEPARATOR: You MUST use the exact tag [KAYNAKCA_BOLUMU] after the analysis.
-3. SOURCES SECTION: List all source links after the tag.
+1. SEPARATOR: You MUST use the exact tag [KAYNAKCA_BOLUMU] after the analysis.
+2. SOURCES SECTION: List all source links after the tag.
 
 STRICT CONSTRAINTS:
-1. ANALYSIS DEPTH: Provide expert-level technical insights regarding field operations, assembly precision, system architecture, and project-specific requirements (Robotics/Defense context).
-2. CHARACTER LIMIT: The total response must NOT exceed 20,000 characters (including spaces). This is a hard limit.
-3. FORMAT: Use structured headings (e.g., Teknik Analiz, Saha Operasyon Etkileri ve öngörüleri, BIST Şirket Değerlendirmeleri, Yatırım Potansiyeli) and technical bullet points.
-4. LANGUAGE: The entire response must be written in TURKISH.
-5. TONE: Professional, concise, and highly engineering-focused.
-6. DEEP ANALYSIS FOR AI: For news items provided with full text (marked as [FULL TEXT]), perform a SWOT analysis regarding their impact on BIST technology stocks and assembly automation.
+1. CHARACTER LIMIT: The total response must NOT exceed 20,000 characters (including spaces). This is a hard limit.
 """
 
     try:
@@ -258,6 +269,7 @@ if __name__ == "__main__":
 
 
     
+
 
 
 
